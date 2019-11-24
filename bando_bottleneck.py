@@ -1,9 +1,9 @@
 """
-Nov 18, 2019
+Nov 13, 2019
 Christopher Fichtlscherer (fichtlscherer@mailbox.org)
 GNU General Public License
 
-An implementation of the Bando model with with several additional features.
+An implementation of the Bando model with an implmentation of the bottle neck.
 Developed during the course 'traffic flow modelling' by Prof. Ingenuin Gasser 
 and Hannes von Allwörden at the University of Hamburg.
 """ 
@@ -38,7 +38,7 @@ def optimal_vel_bottleneck(x, epsilon, L):
 
     h = get_headspaces(x, L)
 
-    bottleneck_factor = 1 - epsilon * np.exp(- ((L/2) - (x%L))**2 )
+    bottleneck_factor = 1 - (epsilon * np.exp(- ((L/2) - (x%L))**2 ))
     opt_v = optimal_vel(h)
     
     opt_v_bottleneck = bottleneck_factor * opt_v
@@ -94,14 +94,25 @@ def create_the_plot(values, dt, plot_title="title", yaxis="y"):
 
 ########################### Run the code #######################################
 
-x_start = np.arange(10)
-v_start = np.ones(10) * 0.05
-a_start = np.ones(10) * 0.02
-L = 15
-epsilon = 0.5
-dt = 0.01
-time_end = 100
+L = 20
+NC = 10
+epsilon = 0.2
+dt = 0.005
+time_end = 200
+
+x_start = np.arange(NC) * L/NC + np.random.random(NC)
+v_start = np.ones(NC) * optimal_vel(L/NC) 
+a_start = np.zeros(NC) + np.random.random(NC)
 
 xre, vre, are = solve_ode(x_start, v_start, a_start, L, epsilon, dt, time_end)
+plt.title("N = 10, L = 20, epsilon = 0.2")
+plt.xlabel("x")
+plt.ylabel("v")
+#plt.plot(np.round(xre[:,1:5], 5) , np.round(vre[:,1:5], 5), ',')
+plt.plot(np.round(xre[:,1], 5) , np.round(vre[:,1], 5), ',')
 
-create_the_plot(xre, dt)
+#x = np.arange(0, L, 0.1)
+#plt.plot(x, (1 - epsilon * np.exp(- ((L/2) - (x%L))**2 )) , ',', color = 'red')
+
+plt.show()
+#create_the_plot(np.round(vre, 6), dt)
